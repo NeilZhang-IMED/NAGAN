@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from PIL import Image
 import torch
-
+import os
 from models import Generator
 from models import Discriminator
 from util import ReplayBuffer
@@ -19,11 +19,14 @@ from datasets_utils import ImageDataset
 from Model_VGG19 import gram_matrix
 
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--epoch', type=int, default=0, help='starting epoch')
 
 parser.add_argument('--n_epochs', type=int, default=12, help='number of epochs of training')
 parser.add_argument('--batchSize', type=int, default=1, help='size of the batches')
+parser.add_argument('--Time', type=str, default='Time1', help='size of the batches')
 
 parser.add_argument('--dataroot', type=str, default='datasets/', help='root directory of the dataset')
 parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate')
@@ -32,10 +35,10 @@ parser.add_argument('--size', type=int, default=512, help='size of the data crop
 parser.add_argument('--input_nc', type=int, default=1, help='number of channels of input data')
 parser.add_argument('--output_nc', type=int, default=1, help='number of channels of output data')
 parser.add_argument('--cuda', action='store_true',default=True, help='use GPU computation')
-parser.add_argument('--n_cpu', type=int, default=16, help='number of cpu threads to use during batch generation')
+parser.add_argument('--n_cpu', type=int, default=10, help='number of cpu threads to use during batch generation')
 parser.add_argument('--transfer', type=bool, default=False, help='Restore parameters of this network')
-parser.add_argument('--style_weight', type=float, default=500,help='style weight')
-parser.add_argument('--GAN_weight', type=float, default=0.01, help='GAN weight')
+parser.add_argument('--style_weight', type=float, default=1000,help='style weight')
+parser.add_argument('--GAN_weight', type=float, default=0.001, help='GAN weight')
 
 
 
@@ -364,9 +367,9 @@ for epoch in range(opt.epoch, opt.n_epochs):
                     images={'real_A': real_A, 'real_B': real_B,  'fake_B': fake_B},
                    heatmaps={'heatmap': diff})
     # Save models checkpoints
-    torch.save(netG_A2B.state_dict(), 'output/netG_A2B.pth')
+    torch.save(netG_A2B.state_dict(), 'output/netG_A2B_{}.pth'.format(opt.Time))
 
-    torch.save(netD_A.state_dict(), 'output/netD_A.pth')
+    torch.save(netD_A.state_dict(), 'output/netD_A_{}.pth'.format(opt.Time))
 
 
 
