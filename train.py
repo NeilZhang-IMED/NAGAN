@@ -26,7 +26,7 @@ parser.add_argument('--epoch', type=int, default=0, help='starting epoch')
 
 parser.add_argument('--n_epochs', type=int, default=12, help='number of epochs of training')
 parser.add_argument('--batchSize', type=int, default=1, help='size of the batches')
-parser.add_argument('--Time', type=str, default='Time1', help='size of the batches')
+parser.add_argument('--Time', type=str, default='Time_2', help='size of the batches')
 
 parser.add_argument('--dataroot', type=str, default='datasets/', help='root directory of the dataset')
 parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate')
@@ -35,7 +35,7 @@ parser.add_argument('--size', type=int, default=512, help='size of the data crop
 parser.add_argument('--input_nc', type=int, default=1, help='number of channels of input data')
 parser.add_argument('--output_nc', type=int, default=1, help='number of channels of output data')
 parser.add_argument('--cuda', action='store_true',default=True, help='use GPU computation')
-parser.add_argument('--n_cpu', type=int, default=10, help='number of cpu threads to use during batch generation')
+parser.add_argument('--n_cpu', type=int, default=4, help='number of cpu threads to use during batch generation')
 parser.add_argument('--transfer', type=bool, default=False, help='Restore parameters of this network')
 parser.add_argument('--style_weight', type=float, default=1000,help='style weight')
 parser.add_argument('--GAN_weight', type=float, default=0.001, help='GAN weight')
@@ -360,12 +360,14 @@ for epoch in range(opt.epoch, opt.n_epochs):
         print(diff.shape)
 
         # Progress report (http://localhost:8097)
+        if i%5 == 0:
+            logger.log({'loss_G': loss_G, 'loss_G_GAN': (loss_GAN_A2B ),\
+                        'loss_style':loss_style,'loss_content':(content_loss_A), 'loss_D_self':(loss_D_A_self),
+                         'loss_D': (loss_D_A )},
+                        images={'real_A': real_A, 'real_B': real_B,  'fake_B': fake_B},
+                       heatmaps={'heatmap': diff})
 
-        logger.log({'loss_G': loss_G, 'loss_G_GAN': (loss_GAN_A2B ),\
-                    'loss_style':loss_style,'loss_content':(content_loss_A), 'loss_D_self':(loss_D_A_self),
-                     'loss_D': (loss_D_A )},
-                    images={'real_A': real_A, 'real_B': real_B,  'fake_B': fake_B},
-                   heatmaps={'heatmap': diff})
+
     # Save models checkpoints
     torch.save(netG_A2B.state_dict(), 'output/netG_A2B_{}.pth'.format(opt.Time))
 

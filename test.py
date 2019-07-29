@@ -26,11 +26,12 @@ parser.add_argument('--size', type=int, default=512, help='size of the data (squ
 parser.add_argument('--cuda', action='store_true', help='use GPU computation')
 parser.add_argument('--n_cpu', type=int, default=8, help='number of cpu threads to use during batch generation')
 parser.add_argument('--generator_A2B', type=str, default='output/netG_A2B.pth', help='A2B generator checkpoint file')
-parser.add_argument('--generator_B2A', type=str, default='output/netG_B2A.pth', help='B2A generator checkpoint file')
 opt = parser.parse_args()
 print(opt)
 
-
+os.makedirs('output/source', exist_ok=True)
+os.makedirs('output/target', exist_ok=True)
+os.makedirs('output/S2T', exist_ok=True)
 # def tensor2image(tensor):
 #     image = 127.5 * (tensor[0].cpu().float().numpy() + 1.0)
 #     if image.shape[0] == 1:
@@ -56,7 +57,7 @@ if opt.cuda:
     netG_B2A.cuda()
 
 # Load state dicts
-temp_A2B = torch.load('output/netG_A2B.pth')
+temp_A2B = torch.load('output/netG_A2B_Time1.pth')
 # temp_B2A = torch.load('output/netG_B2A.pth')
 
 
@@ -126,20 +127,20 @@ for i, batch in enumerate(dataloader):
 
 
     # #
-    # viz.img("A",tensor2image(real_A))
-    # viz.img("B",tensor2image(real_B))
-    # viz.img("A2B",tensor2image(fake_B))
+    viz.img("A",tensor2image(real_A))
+    viz.img("B",tensor2image(real_B))
+    viz.img("A2B",tensor2image(fake_B))
     # print("batch {}".format(i))
 
     # Save image files
     # print(A_name[0])
 
-    save_image(tensor2image(real_A), 'output/A/%s' % (A_name[0]))
-    save_image(tensor2image(real_B), 'output/B/%04d.png' % (i + 1))
+    save_image(tensor2image(real_A), 'output/source/%s' % (A_name[0]))
+    save_image(tensor2image(real_B), 'output/target/%04d.png' % (i + 1))
 
 
 
-    save_image(tensor2image(fake_B), 'output/fake_B/{}'.format(A_name[0]) )
+    save_image(tensor2image(fake_B), 'output/S2T/{}'.format(A_name[0]) )
 
     sys.stdout.write('\rGenerated images %04d of %04d' % (i+1, len(dataloader)))
 
