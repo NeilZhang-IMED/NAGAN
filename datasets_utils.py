@@ -13,8 +13,8 @@ class ImageDataset(Dataset):
         self.transform = transforms.Compose(transforms_)
         self.unaligned = unaligned
 
-        self.files_A = sorted(glob.glob(os.path.join(root, '%s/sina_NAGAN' % mode) + '/*.*'))
-        self.files_B = sorted(glob.glob(os.path.join(root, '%s/cheng_566_NAGAN' % mode) + '/*.*'))
+        self.files_A = sorted(glob.glob(os.path.join(root, '%s/source' % mode) + '/*.*'))
+        self.files_B = sorted(glob.glob(os.path.join(root, '%s/source' % mode) + '/*.*'))
 
     def __getitem__(self, index):
 
