@@ -105,16 +105,16 @@ criterion_cycle = torch.nn.L1Loss()
 criterion_identity = torch.nn.L1Loss()
 
 # Optimizers & LR schedulers
-optimizer_G = torch.optim.Adam(itertools.chain(netG_A2B.parameters()),
-                                lr=opt.lr, betas=(0.5, 0.999))
-optimizer_D_A = torch.optim.Adam(netD_A.parameters(), lr=opt.lr, betas=(0.5, 0.999))
+# optimizer_G = torch.optim.Adam(itertools.chain(netG_A2B.parameters()),
+#                                 lr=opt.lr, betas=(0.5, 0.999))
+# optimizer_D_A = torch.optim.Adam(netD_A.parameters(), lr=opt.lr, betas=(0.5, 0.999))
+#
+# optimizer_D_A_self = torch.optim.Adam(netD_A_self.parameters(), lr=opt.lr, betas=(0.5, 0.999))
 
-optimizer_D_A_self = torch.optim.Adam(netD_A_self.parameters(), lr=opt.lr, betas=(0.5, 0.999))
 
-
-# optimizer_G = torch.optim.SGD(itertools.chain(netG_A2B.parameters(), netG_B2A.parameters()),lr=opt.lr)
-# optimizer_D_A = torch.optim.SGD(netD_A.parameters(),lr=opt.lr)
-# optimizer_D_B = torch.optim.SGD(netD_B.parameters(),lr=opt.lr)
+optimizer_G = torch.optim.SGD(itertools.chain(netG_A2B.parameters(), netG_B2A.parameters()),lr=opt.lr)
+optimizer_D_A = torch.optim.SGD(netD_A.parameters(),lr=opt.lr)
+optimizer_D_B = torch.optim.SGD(netD_A_self.parameters(),lr=opt.lr)
 
 
 lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(optimizer_G, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
