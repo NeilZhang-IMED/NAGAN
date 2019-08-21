@@ -9,6 +9,13 @@
           </mappings>
         </serverdata>
       </paths>
+      <paths name="zhangtianyang@10.20.82.174:22">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/data/home/zhangtianyang/NAGAN" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
     </serverData>
     <option name="myAutoUpload" value="ALWAYS" />
   </component>

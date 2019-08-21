@@ -17,7 +17,8 @@ from util import Logger
 from util import weights_init_normal
 from datasets_utils import ImageDataset
 from Model_VGG19 import gram_matrix
-
+from Visualizer import Visualizer
+VIS = Visualizer("NAGAN_GRAY")
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
@@ -105,16 +106,16 @@ criterion_cycle = torch.nn.L1Loss()
 criterion_identity = torch.nn.L1Loss()
 
 # Optimizers & LR schedulers
-# optimizer_G = torch.optim.Adam(itertools.chain(netG_A2B.parameters()),
-#                                 lr=opt.lr, betas=(0.5, 0.999))
-# optimizer_D_A = torch.optim.Adam(netD_A.parameters(), lr=opt.lr, betas=(0.5, 0.999))
-#
-# optimizer_D_A_self = torch.optim.Adam(netD_A_self.parameters(), lr=opt.lr, betas=(0.5, 0.999))
+optimizer_G = torch.optim.Adam(itertools.chain(netG_A2B.parameters()),
+                                lr=opt.lr, betas=(0.5, 0.999))
+optimizer_D_A = torch.optim.Adam(netD_A.parameters(), lr=opt.lr, betas=(0.5, 0.999))
+
+optimizer_D_A_self = torch.optim.Adam(netD_A_self.parameters(), lr=opt.lr, betas=(0.5, 0.999))
 
 
-optimizer_G = torch.optim.SGD(itertools.chain(netG_A2B.parameters(), netG_B2A.parameters()),lr=opt.lr)
-optimizer_D_A = torch.optim.SGD(netD_A.parameters(),lr=opt.lr)
-optimizer_D_B = torch.optim.SGD(netD_A_self.parameters(),lr=opt.lr)
+# optimizer_G = torch.optim.SGD(netG_A2B.parameters(),lr=opt.lr)
+# optimizer_D_A = torch.optim.SGD(netD_A.parameters(),lr=opt.lr)
+# optimizer_D_A_self = torch.optim.SGD(netD_A_self.parameters(),lr=opt.lr)
 
 
 lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(optimizer_G, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step)
@@ -136,7 +137,8 @@ transforms_ = [ transforms.Resize((int(opt.size), int(opt.size)), Image.BICUBIC)
                 # transforms.RandomCrop(opt.size),
                 #transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
-                transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)) ]
+                transforms.Normalize((0.5,), (0.5,))
+                ]
 dataloader = DataLoader(ImageDataset(opt.dataroot, transforms_=transforms_, unaligned=True), 
                         batch_size=opt.batchSize, shuffle=True, num_workers=opt.n_cpu,drop_last=True)
 
@@ -177,13 +179,12 @@ loss_best = 10000
 ###### Training ######
 for epoch in range(opt.epoch, opt.n_epochs):
 
-    if epoch>3:
-        input("Press Enter to continue...")
-
+    # if epoch>3:
+    #     input("Press Enter to continue...")
+    print(epoch)
 
     for i, batch in enumerate(dataloader):
-        print("break")
-        print(i)
+
         # Set model input
         real_A = Variable(input_A.copy_(batch['A']))
         real_B = Variable(input_B.copy_(batch['B']))
@@ -221,9 +222,16 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
         #######################################################################
         # content loss
+        _, feature_RA = netD_A(real_A)
+
+
+
+        _, feature_RB = netD_A(real_B)
+        _, feature_FB = netD_A(fake_B)
+
+
+
         _, content_feature_RA = netD_A_self(real_A)
-
-
 
         _, content_feature_RB = netD_A_self(real_B)
         _, content_feature_FB = netD_A_self(fake_B)
@@ -233,17 +241,17 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
 
 
-        Gram_RA_0 = gram_matrix(content_feature_RA[0])
-        Gram_RA_1 = gram_matrix(content_feature_RA[1])
-        Gram_RA_2 = gram_matrix(content_feature_RA[2])
+        # Gram_RA_0 = gram_matrix(content_feature_RA[0])
+        # Gram_RA_1 = gram_matrix(content_feature_RA[1])
+        # Gram_RA_2 = gram_matrix(content_feature_RA[2])
 
-        Gram_FB_0 = gram_matrix(content_feature_FB[0])
-        Gram_FB_1 = gram_matrix(content_feature_FB[1])
-        Gram_FB_2 = gram_matrix(content_feature_FB[2])
+        Gram_FB_0 = gram_matrix(feature_FB[0])
+        Gram_FB_1 = gram_matrix(feature_FB[1])
+        Gram_FB_2 = gram_matrix(feature_FB[2])
 
-        Gram_RB_0 = gram_matrix(content_feature_RB[0])
-        Gram_RB_1 = gram_matrix(content_feature_RB[1])
-        Gram_RB_2 = gram_matrix(content_feature_RB[2])
+        Gram_RB_0 = gram_matrix(feature_RB[0])
+        Gram_RB_1 = gram_matrix(feature_RB[1])
+        Gram_RB_2 = gram_matrix(feature_RB[2])
 
 
         loss_style_B_0 = criterion_identity(Gram_FB_0, Gram_RB_0.detach())
@@ -347,26 +355,31 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
 
 
+        real_A = real_A * 0.5 + 0.5
+        real_B = real_B * 0.5 + 0.5
+        fake_B = fake_B * 0.5 + 0.5
 
-        ###################################
+###################################
 
-        diff = (fake_B - real_A)
-        diff = diff.reshape(-1,512,512)
-        diff = image_loader(diff.cpu().detach())
+        # diff = (fake_B - real_A)
+        # diff = diff.reshape(-1,512,512)
+        # diff = image_loader(diff.cpu().detach())
+        #
+        # diff = diff.reshape(512, 512)
 
-        diff = diff.reshape(512, 512)
-
-        print("diff.shape\n")
-        print(diff.shape)
+        # print("diff.shape\n")
+        # print(diff.shape)
 
         # Progress report (http://localhost:8097)
-        if i%5 == 0:
-            logger.log({'loss_G': loss_G, 'loss_G_GAN': (loss_GAN_A2B ),\
-                        'loss_style':loss_style,'loss_content':(content_loss_A), 'loss_D_self':(loss_D_A_self),
-                         'loss_D': (loss_D_A )},
-                        images={'real_A': real_A, 'real_B': real_B,  'fake_B': fake_B},
-                       heatmaps={'heatmap': diff})
-
+        if i%10 == 0:
+            # logger.log({'loss_G': loss_G, 'loss_G_GAN': (loss_GAN_A2B ),\
+            #             'loss_style':loss_style,'loss_content':(content_loss_A), 'loss_D_self':(loss_D_A_self),
+            #              'loss_D': (loss_D_A )},
+            #             images={'real_A': real_A, 'real_B': real_B,  'fake_B': fake_B},
+            #            heatmaps={'heatmap': diff})
+            VIS.img(name="real_A", img_=real_A)
+            VIS.img(name="real_B", img_=real_B)
+            VIS.img(name="fake", img_=fake_B)
 
     # Save models checkpoints
     torch.save(netG_A2B.state_dict(), 'output/netG_A2B_{}.pth'.format(opt.Time))
@@ -381,6 +394,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
         early_stop +=1
 
     if early_stop >5 or (loss_GAN_A2B > loss_best+1.8):
+
         break
 
 
