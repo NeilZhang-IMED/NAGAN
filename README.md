@@ -9,10 +9,11 @@
 
 ##### An Image from Target Domain:
 
+![target](real_B-6.jpg)
 
 ##### Transfered image:
 
-![source](Group1_Volume2-6.png)
+![transfer](Group1_Volume2-6.png)
 
 
 
