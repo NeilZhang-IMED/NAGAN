@@ -390,10 +390,11 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
     if loss_GAN_A2B<loss_best:
         loss_best = loss_GAN_A2B
+        early_stop = 0
     elif loss_GAN_A2B> loss_best:
         early_stop +=1
 
-    if early_stop >5 or (loss_GAN_A2B > loss_best+1.8):
+    if early_stop >delta or (loss_GAN_A2B > loss_best+1.8):
 
         break
 
