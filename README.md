@@ -1,6 +1,6 @@
 # NAGAN
 
-**This is just a preliminary rough version, we will update these codes later.**
+**This is just a preliminary rough version, and we will update these codes later.**
 
 
 #### Examples:
