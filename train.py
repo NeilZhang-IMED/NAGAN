@@ -40,8 +40,7 @@ parser.add_argument('--n_cpu', type=int, default=4, help='number of cpu threads 
 parser.add_argument('--transfer', type=bool, default=False, help='Restore parameters of this network')
 parser.add_argument('--style_weight', type=float, default=1000,help='style weight')
 parser.add_argument('--GAN_weight', type=float, default=0.001, help='GAN weight')
-
-
+parser.add_argument('--threshold', type=int, default=1, help='GAN weight')
 
 
 opt = parser.parse_args()
@@ -359,18 +358,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
         real_B = real_B * 0.5 + 0.5
         fake_B = fake_B * 0.5 + 0.5
 
-###################################
 
-        # diff = (fake_B - real_A)
-        # diff = diff.reshape(-1,512,512)
-        # diff = image_loader(diff.cpu().detach())
-        #
-        # diff = diff.reshape(512, 512)
-
-        # print("diff.shape\n")
-        # print(diff.shape)
-
-        # Progress report (http://localhost:8097)
         if i%10 == 0:
             # logger.log({'loss_G': loss_G, 'loss_G_GAN': (loss_GAN_A2B ),\
             #             'loss_style':loss_style,'loss_content':(content_loss_A), 'loss_D_self':(loss_D_A_self),
@@ -381,22 +369,25 @@ for epoch in range(opt.epoch, opt.n_epochs):
             VIS.img(name="real_B", img_=real_B)
             VIS.img(name="fake", img_=fake_B)
 
-    # Save models checkpoints
+    # Save models checkpoints and early stop
+
+    if loss_GAN_A2B < loss_best:
+        loss_best = loss_GAN_A2B
+        early_stop = 0
+    elif loss_GAN_A2B > loss_best:
+        early_stop += 1
+
+    if early_stop >= opt.threshold:
+        break
+
+
     torch.save(netG_A2B.state_dict(), 'output/netG_A2B_{}.pth'.format(opt.Time))
 
     torch.save(netD_A.state_dict(), 'output/netD_A_{}.pth'.format(opt.Time))
 
 
 
-    if loss_GAN_A2B<loss_best:
-        loss_best = loss_GAN_A2B
-        early_stop = 0
-    elif loss_GAN_A2B> loss_best:
-        early_stop +=1
 
-    if early_stop >delta or (loss_GAN_A2B > loss_best+1.8):
-
-        break
 
 
 
