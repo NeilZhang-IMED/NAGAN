@@ -1,2 +1,6 @@
-
+datasets
 Baselines
+output
+Seg
+segOCT
+.gitignore
