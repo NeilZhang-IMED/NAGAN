@@ -1,7 +1,0 @@
-datasets
-Baselines
-output
-Seg
-segOCT
-.gitignore
-filter_GAN.py
