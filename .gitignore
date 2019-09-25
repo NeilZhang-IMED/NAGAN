@@ -3,4 +3,6 @@ Baselines
 output
 Seg
 segOCT
-.gitignore
+.gitignore.text
+.idea
+.test.ext
