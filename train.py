@@ -40,7 +40,7 @@ parser.add_argument('--n_cpu', type=int, default=4, help='number of cpu threads 
 parser.add_argument('--transfer', type=bool, default=False, help='Restore parameters of this network')
 parser.add_argument('--style_weight', type=float, default=1000,help='style weight')
 parser.add_argument('--GAN_weight', type=float, default=0.001, help='GAN weight')
-parser.add_argument('--threshold', type=int, default=1, help='GAN weight')
+parser.add_argument('--threshold', type=int, default=1, help='Adjust by yourself')
 
 
 opt = parser.parse_args()
